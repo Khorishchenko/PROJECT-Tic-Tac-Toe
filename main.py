@@ -23,6 +23,8 @@ def enter_move(board):
     display_board(board)
 
 
+
+
 def make_list_of_free_fields(board):
     # Функція перевіряє дошку та створює список усіх вільних квадратів;
     # список складається з кортежів, так що кожен кортеж є парою номерів рядка і стовпчика.
@@ -33,6 +35,8 @@ def make_list_of_free_fields(board):
             if board[i][j] in valid_values:
                 free_fields.append((i, j))
     return free_fields
+
+
 
 
 def winner_for(board, sign):
@@ -49,16 +53,45 @@ def winner_for(board, sign):
     return False
 
 
+
+def check_winner(board, player):
+    # Функція перевіряє, чи є переможець на дошці для заданого гравця.
+    win_conditions = [
+        [(0, 0), (0, 1), (0, 2)],  # ряд 1
+        [(1, 0), (1, 1), (1, 2)],  # ряд 2
+        [(2, 0), (2, 1), (2, 2)],  # ряд 3
+        [(0, 0), (1, 0), (2, 0)],  # стовпець 1
+        [(0, 1), (1, 1), (2, 1)],  # стовпець 2
+        [(0, 2), (1, 2), (2, 2)],  # стовпець 3
+        [(0, 0), (1, 1), (2, 2)],  # діагональ 1
+        [(0, 2), (1, 1), (2, 0)],  # діагональ 2
+    ]
+    
+    for condition in win_conditions:
+        if all(board[x][y] == player for x, y in condition):
+            return True
+    return False
+
+
+# модифікована функцію draw_move, щоб вона не тільки робила хід комп'ютера, але й блокувала можливість виграшу іншого гравця
 def draw_move(board):
     # Функція малює хід комп'ютера та оновлює дошку.
     free_fields = make_list_of_free_fields(board)
-    if len(free_fields) > 0:
+
+    # Спочатку перевіряємо, чи потрібно заблокувати виграш супротивника.
+    for x, y in free_fields:
+        board[x][y] = 'O'  # Припустимо, що 'O' - це гравець
+        if check_winner(board, 'O'):
+            board[x][y] = 'X'  # Блокуємо виграш супротивника
+            return
+        board[x][y] = str(x * 3 + y + 1)  # Повертаємо назад вільне поле
+    
+    # Якщо немає потреби блокувати, робимо випадковий хід.
+    if free_fields:
         x, y = free_fields[randrange(len(free_fields))]
         board[x][y] = 'X'
     else:
         print('No possible moves left. It\'s a draw!')
-
-
 
 
 def main():
@@ -84,6 +117,7 @@ def main():
             
         draw_move(board)
         display_board(board)
+        
 
 
 
